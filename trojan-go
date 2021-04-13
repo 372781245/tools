@@ -1,0 +1,128 @@
+＃！/ bin / bash
+蓝色的（）{
+    echo -e“ \ 033 [34m \ 033 [01m $ 1 \ 033 [0m]”
+}
+绿色（）{
+    echo -e“ \ 033 [32m \ 033 [01m $ 1 \ 033 [0m]”
+}
+红色的（）{
+    echo -e“ \ 033 [31m \ 033 [01m $ 1 \ 033 [0m]”
+}
+黄色的（）{
+    echo -e“ \ 033 [33m \ 033 [01m $ 1 \ 033 [0m]”
+}
+繁殖（）{
+    echo -e“ \ 033 [31m \ 033 [01m \ 033 [05m $ 1 \ 033 [0m]”
+}
+byellow（）{
+    echo -e“ \ 033 [33m \ 033 [01m \ 033 [05m $ 1 \ 033 [0m]”
+}
+
+yum -y install解压缩wget curl firewalld epel *
+systemctl重新启动firewalld
+防火墙cmd-永久--add-port = 80 / tcp
+防火墙cmd-永久--add-port = 443 / tcp
+防火墙cmd-永久--add-port = 4437 / tcp
+防火墙cmd-永久--add-port = 22122 / tcp
+防火墙cmd-永久--add-port = 44377 / tcp
+防火墙cmd-重新加载
+
+##########获取最新版本号
+Latest_version =“ $（wget --no-check-certificate -qO- https://api.github.com/repos/p4gefau1t/trojan-go/tags | grep'name'| cut -d \” -f4 | head -1）”
+黄色“最新版本号为：$ {latest_version}”
+##########设置下载连接地址
+trojango_link =“ https://github.com/p4gefau1t/trojan-go/releases/download/${latest_version}/trojan-go-linux-amd64.zip”
+######################
+mkdir / root /木马
+wget“ $ {trojango_link}” -O /root/trojan-go/trojan-go.zip
+cd / root /木马
+解压缩trojan-go.zip && rm -rf trojan-go.zip
+黄色的“ trojan-go下载完成！”
+绿色“ ======================”
+黄色“请输入绑定到本VPS的域名”
+绿色“ ======================”
+阅读your_domain
+real_addr =`ping $ {your_domain} -c 1 | sed'1 {s / [^（] *（//; s /).*//; q}'``
+local_addr =`curl ipv4.icanhazip.com`
+绿色“ ======================”
+黄色“请输入trojan的连接密码”
+绿色“ ======================”
+读取vpn_password
+###############服务端配置文件
+猫> /root/trojan-go/server.yaml <<-EOF
+运行类型：服务器
+本地地址：0.0.0.0
+本地端口：443
+远程地址：127.0.0.1
+远程端口：80
+密码：
+  -$ vpn_password
+ssl：
+  证书：/root/trojan-go/server.cer
+  密钥：/root/trojan-go/server.key
+  fallback_port：80
+紧急行动
+
+＃cat> /root/trojan-go/client.json <<-EOF
+＃{
+    ＃“ run_type”：“客户端”，
+    ＃“ local_addr”：“ 127.0.0.1”，
+    ＃“ local_port”：1080，
+    ＃“ remote_addr”：“ $ your_domain”，
+    ＃“ remote_port”：443，
+    ＃ “密码”： [
+        ＃“ $ vpn_password”
+    ＃]，
+    ＃“ ssl”：{
+        ＃“ sni”：“ $ your_domain”
+    ＃}，
+    ＃“ mux”：{
+        ＃“已启用”：true
+    ＃}，
+    ＃“路由器”：{
+        ＃“ enabled”：是的，
+        ＃ “旁路”： [
+            ＃“ geoip：cn”，
+            ＃“ geoip：private”，
+            ＃“ geosite：cn”，
+            ＃“ geosite：geolocation-cn”
+        ＃]，
+        ＃ “堵塞”： [
+            ＃“ geosite：category-ads”
+        ＃]，
+        ＃ “代理人”： [
+            ＃“ geosite：geolocation-！cn”
+        ＃]，
+        ＃“ default_policy”：“代理”，
+        ＃“ geoip”：“ / root / trojan-go / geoip.dat”，
+        ＃“ geosite”：“ /root/trojan-go/geosite.dat”
+    ＃}
+＃}
+＃EOF
+
+
+如果[$ real_addr == $ local_addr]; 然后
+	绿色“ =========================================
+	绿色“域名解析正常，开启安装nginx并申请https证书”
+	绿色“ =========================================
+	睡1s
+    yum install -y nginx
+	rm -rf / usr / share / nginx / html / *
+	cd / usr / share / nginx / html /
+	wget www.yahoo.co.jp
+	systemctl重新启动nginx.service
+	＃申请https证书
+	卷曲https://get.acme.sh | SH
+	〜/ .acme.sh / acme.sh --issue -d $ your_domain --webroot / usr / share / nginx / html /
+    	〜/ .acme.sh / acme.sh --installcert -d $您的域\
+        --key-file /root/trojan-go/server.key \
+        --fullchain文件/root/trojan-go/server.cer \
+        --reloadcmd“ systemctl强制重新加载nginx.service”
+	#systemctl stop nginx.service
+	黄色“ nohup / root / trojan-go / trojan-go -config /root/trojan-go/server.yaml> trojan-go.log 2 <＆1＆”
+别的
+	红色“ ===============================”
+	红色“域名解析地址与本VPS IP地址重复”
+	红色“本次安装失败，请确保域名解析正常”
+	红色“ ===============================”
+科幻
